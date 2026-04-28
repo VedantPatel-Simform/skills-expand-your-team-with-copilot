@@ -922,10 +922,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const cards = activitiesList.querySelectorAll(".activity-card");
         if (cards.length > 0) {
           observer.disconnect();
+          clearTimeout(observerTimeout);
           highlightActivity(sharedActivity);
         }
       });
       observer.observe(activitiesList, { childList: true });
+      // Disconnect after 10 seconds to avoid running indefinitely
+      const observerTimeout = setTimeout(() => observer.disconnect(), 10000);
     }
   }
 
