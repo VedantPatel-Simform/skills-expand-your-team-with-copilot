@@ -33,21 +33,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme === "dark") {
     document.documentElement.setAttribute("data-theme", "dark");
-    darkModeIcon.textContent = "☀️";
+    if (darkModeIcon) darkModeIcon.textContent = "☀️";
+  } else {
+    if (darkModeIcon) darkModeIcon.textContent = "🌙";
   }
 
-  darkModeToggle.addEventListener("click", () => {
-    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-    if (isDark) {
-      document.documentElement.removeAttribute("data-theme");
-      localStorage.setItem("theme", "light");
-      darkModeIcon.textContent = "🌙";
-    } else {
-      document.documentElement.setAttribute("data-theme", "dark");
-      localStorage.setItem("theme", "dark");
-      darkModeIcon.textContent = "☀️";
-    }
-  });
+  if (darkModeToggle) {
+    darkModeToggle.addEventListener("click", () => {
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+      if (isDark) {
+        document.documentElement.removeAttribute("data-theme");
+        localStorage.setItem("theme", "light");
+        if (darkModeIcon) darkModeIcon.textContent = "🌙";
+      } else {
+        document.documentElement.setAttribute("data-theme", "dark");
+        localStorage.setItem("theme", "dark");
+        if (darkModeIcon) darkModeIcon.textContent = "☀️";
+      }
+    });
+  }
 
   // Activity categories with corresponding colors
   const activityTypes = {
