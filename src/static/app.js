@@ -569,6 +569,23 @@ document.addEventListener("DOMContentLoaded", () => {
         `
         }
       </div>
+      <div class="share-section">
+        <span class="share-label">Share:</span>
+        <div class="share-buttons">
+          <button class="share-btn share-copy tooltip" data-activity="${name}" aria-label="Copy link">
+            🔗
+            <span class="tooltip-text">Copy link</span>
+          </button>
+          <button class="share-btn share-twitter tooltip" data-activity="${name}" aria-label="Share on X (Twitter)">
+            𝕏
+            <span class="tooltip-text">Share on X (Twitter)</span>
+          </button>
+          <button class="share-btn share-whatsapp tooltip" data-activity="${name}" aria-label="Share on WhatsApp">
+            💬
+            <span class="tooltip-text">Share on WhatsApp</span>
+          </button>
+        </div>
+      </div>
     `;
 
     // Add click handlers for delete buttons
@@ -586,6 +603,28 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
+
+    // Share button handlers
+    const shareUrl = `${window.location.origin}${window.location.pathname}?activity=${encodeURIComponent(name)}`;
+    const shareText = `Check out this activity at Mergington High School: ${name} — ${details.description}`;
+
+    activityCard.querySelector(".share-copy").addEventListener("click", () => {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        showMessage("Link copied to clipboard!", "success");
+      }).catch(() => {
+        showMessage("Could not copy link. Please copy it manually: " + shareUrl, "info");
+      });
+    });
+
+    activityCard.querySelector(".share-twitter").addEventListener("click", () => {
+      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+      window.open(twitterUrl, "_blank", "noopener,noreferrer");
+    });
+
+    activityCard.querySelector(".share-whatsapp").addEventListener("click", () => {
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + " " + shareUrl)}`;
+      window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+    });
 
     activitiesList.appendChild(activityCard);
   }
@@ -861,8 +900,38 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeRangeFilter,
   };
 
+  // Highlight and scroll to an activity card by name
+  function highlightActivity(activityName) {
+    const cards = activitiesList.querySelectorAll(".activity-card");
+    cards.forEach((card) => {
+      const heading = card.querySelector("h4");
+      if (heading && heading.textContent.trim() === activityName) {
+        card.classList.add("activity-highlighted");
+        card.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    });
+  }
+
+  // Handle shared activity URL parameter
+  function handleSharedActivity() {
+    const params = new URLSearchParams(window.location.search);
+    const sharedActivity = params.get("activity");
+    if (sharedActivity) {
+      // Wait for activities to finish rendering before highlighting
+      const observer = new MutationObserver(() => {
+        const cards = activitiesList.querySelectorAll(".activity-card");
+        if (cards.length > 0) {
+          observer.disconnect();
+          highlightActivity(sharedActivity);
+        }
+      });
+      observer.observe(activitiesList, { childList: true });
+    }
+  }
+
   // Initialize app
   checkAuthentication();
   initializeFilters();
   fetchActivities();
+  handleSharedActivity();
 });
